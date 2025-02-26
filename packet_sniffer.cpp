@@ -29,6 +29,7 @@ PacketSniffer::PacketSniffer(const std::string& interface) {
 	}	
 	for (int i = 0; i < NUMBER_OF_TYPES; i++) {
 		handlers.push_back(PacketHandlerFactory::from_packet_type(*this, (PacketType) i));
+		std::cout << "PacketHandler добавлен в vector.\n";
 	}
 }
 
@@ -44,22 +45,30 @@ void PacketSniffer::start_capture() {
 	for (auto& handler: handlers) {
 		handler.get()->start();
 	}
-	std::cout << "Начат захват пакетов." << std::endl;
-	if (pcap_loop(handle, -1, distribute_packets, reinterpret_cast<u_char*>(this))) {
+	std::cout << "Захват пакетов начат.\n";
+	if (pcap_loop(handle, -1, distribute_packets, reinterpret_cast<u_char*>(this)) == PCAP_ERROR) {
 		throw std::runtime_error("Ошибка при захвате пакетов: " + std::string(pcap_geterr(handle)));
 	}
+	for (auto& handler: handlers) {
+		handler.get()->stop();
+	}
+	std::cout << "Захват пакетов завершён.\n";
 }	
 
 // Callback-обработчик для пакета
 void PacketSniffer::distribute_packets(u_char* user, const struct pcap_pkthdr* packet_header, const u_char* packet) {
 	PacketSniffer* sniffer = reinterpret_cast<PacketSniffer*>(user);
-	PacketType packet_type = analyze_packet(packet_header, packet);
-	// Добавляем пакет в очередь соответствующего обработчика
-	sniffer->handlers[packet_type].get()->add_packet(packet_header, packet);
-
 	if (stop_capture) {
 		pcap_breakloop(sniffer->handle);
+		std::cout << "\nПолучен сигнал об останове.\n";
+		return;
 	}
+
+	std::cout << "Захвачен пакет длиной " << packet_header->caplen << "\n";
+	PacketType packet_type = analyze_packet(packet_header, packet);
+	std::cout << "Тип пакета: " << packet_type << "\n";
+	// Добавляем пакет в очередь соответствующего обработчика
+	sniffer->handlers[packet_type].get()->add_packet(packet_header, packet);
 }
 
 /* Анализ пакета на протокол. Проверка на протокол FTP примитивна и всего лишь проверяет порты источника и назначения, то есть не сработает в пассивном режиме FTP или при нестандартной настройке.
@@ -116,3 +125,6 @@ void PacketSniffer::handle_signal(int signal) {
 pcap_t* PacketSniffer::getHandle() const {
 	return handle;
 }
+
+// Инициализируем статического члена класса
+volatile bool PacketSniffer::stop_capture = false;

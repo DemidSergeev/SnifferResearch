@@ -6,3 +6,5 @@ FtpControlHandler::FtpControlHandler(const PacketSniffer& sniffer)
 void FtpControlHandler::process_packet(const pcap_pkthdr* packet_header, const u_char *packet) const {
     pcap_dump((u_char*) dumper, packet_header, packet);
 }
+
+const std::string FtpControlHandler::filename_out = "ftp.pcap";

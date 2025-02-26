@@ -4,6 +4,7 @@
 #include "other_handler.h"
 
 std::unique_ptr<PacketHandler> PacketHandlerFactory::from_packet_type(const PacketSniffer& sniffer, PacketType packet_type) {
+    std::cout << "Создание PacketHandler через фабрику...\n";
     switch (packet_type) {
         case TYPE_FTP_CONTROL:
             return std::make_unique<FtpControlHandler>(sniffer);

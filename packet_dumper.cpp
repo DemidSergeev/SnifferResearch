@@ -9,6 +9,7 @@ PacketDumper::PacketDumper(const PacketSniffer& sniffer, const std::string& file
     if (!(dumper = pcap_dump_open(handle, filename.c_str()))) {
        throw std::runtime_error(pcap_geterr(handle)); 
     };
+    std::cout << "PacketDumper создан с именем выходного файла: " << filename << std::endl;
 }
 
 PacketDumper::~PacketDumper() {

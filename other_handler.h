@@ -9,7 +9,6 @@ class OtherHandler : public PacketHandler, PacketDumper {
         OtherHandler(const PacketSniffer& sniffer);
         void process_packet(const pcap_pkthdr* packet_header, const u_char* packet) const override;
 
-
     private:
-        const std::string filename_out = "other.pcap";
+        static const std::string filename_out;
 };

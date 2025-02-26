@@ -9,5 +9,5 @@ class FtpDataHandler : public PacketHandler, PacketDumper {
         FtpDataHandler(const PacketSniffer& sniffer);
         void process_packet(const pcap_pkthdr* packet_header, const u_char* packet) const override;
     private:
-        const std::string filename_out = "ftp_data.pcap";
+        static const std::string filename_out;
 };

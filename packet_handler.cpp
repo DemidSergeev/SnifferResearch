@@ -1,9 +1,12 @@
 #include "packet_handler.h"
 
+#include <iostream>
+
 // Запускает поток обработчика.
 void PacketHandler::start() {
     is_running = true;
     worker_thread = std::thread(&PacketHandler::process_loop, this);
+    std::cout << "PacketHandler запущен.\n";
 }
 
 // Останавливает поток обработчика.
@@ -11,6 +14,7 @@ void PacketHandler::stop() {
     is_running = false;
     cv.notify_all();
     if (worker_thread.joinable()) worker_thread.join();
+    std::cout << "PacketHandler остановлен.\n";
 }
 
 // Добавляет `packet` в конец `packet_queue`.
